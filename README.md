@@ -24,8 +24,8 @@ Agentic AI Tutor is a free, privacy-focused, adaptive learning system designed t
 
 ## Screenshots
 
-<img src="User_Interface_1.png" alt="My Image" width="…" height="…">
-<img src="User_Interface_2.png" alt="My Image" width="…" height="…">
+<img src="User_Interface_1" alt="My Image" width="…" height="…">
+<img src="User_Interface_2" alt="My Image" width="…" height="…">
 ***
 
 ## Getting Started
