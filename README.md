@@ -1,4 +1,3 @@
-Here’s a polished README.md for your Agentic AI Tutor project, fully compatible for GitHub and clearly reflecting both the architecture and your real-world migration/setup experience:*
 
 # Agentic AI Tutor: Adaptive Learning with Local LLMs
 
