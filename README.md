@@ -1,162 +1,116 @@
-
-# Agentic AI Tutor: Adaptive Learning with Local LLMs
+# Agentic AI Tutor: Production FastAPI & PostgreSQL Architecture
 
 ## Overview
 
-Agentic AI Tutor is a free, privacy-focused, adaptive learning system designed to help students prepare for competitive exams (JEE, SAT, GRE, etc.). It uses multi-agent AI orchestration, Retrieval-Augmented Generation (RAG), and local Large Language Models (LLMs) powered by [Ollama](https://ollama.ai/)—**no OpenAI API or cloud costs required**!
+Agentic AI Tutor is an adaptive learning system designed for competitive exams. It features a decoupled **FastAPI REST API**, **PostgreSQL** persistence via Docker & SQLAlchemy, **Groq Cloud LLM** inference (`llama-3.3-70b-versatile`), and **Hybrid RAG** (ChromaDB HNSW + BM25).
 
-- **Personalized learning:** Adapts quizzes and study plans based on your progress
-- **Full privacy:** All computations, documents, and student data stay on your machine
-- **No API costs:** Runs 100% free after setup
+---
 
-***
+## 🏛️ System Architecture
 
-## Features
+```mermaid
+flowchart LR
+    subgraph Frontend
+        UI[Streamlit UI app.py]
+    end
 
-- **Natural language chat:** Ask questions and get grounded, contextual explanations
-- **Adaptive quizzes:** Automatic quiz generation, dynamically adjusts difficulty
-- **Progress tracking:** Tracks your strengths, weaknesses, and learning gains
-- **Runs locally:** Powered by Ollama and open-source LLMs (Mistral, Neural-Chat, etc.)
-- **Intuitive UI:** Streamlit interface for easy interaction
+    subgraph Backend [FastAPI: Port 8000]
+        API["FastAPI App (backend/main.py)"]
+        ChatRouter["/api/v1/chat"]
+        QuizRouter["/api/v1/quiz"]
+        ProgressRouter["/api/v1/progress"]
+        DocsRouter["/api/v1/documents"]
+        
+        AgentSvc[Agent Service]
+        StudentSvc[Student Service]
+    end
 
-***
+    subgraph Databases
+        Postgres[("PostgreSQL (Docker: 5432)")]
+        Chroma[("ChromaDB (Vector Store)")]
+        BM25[("BM25 (Sparse Index)")]
+    end
 
-## Screenshots
+    UI <-->|REST API / JSON| API
+    API --> ChatRouter & QuizRouter & ProgressRouter & DocsRouter
+    ChatRouter --> AgentSvc
+    QuizRouter --> AgentSvc & StudentSvc
+    ProgressRouter --> StudentSvc
+    DocsRouter --> AgentSvc
 
-<img src="User_Interface_1" alt="My Image" width="…" height="…">
-<img src="User_Interface_2" alt="My Image" width="…" height="…">
-***
-
-## Getting Started
-
-### 1. Requirements
-
-- Python 3.9+
-- [Ollama](https://ollama.ai/) (for running local LLMs)
-- 8GB+ RAM recommended
-- pip (Python package manager)
-
-### 2. Setup
-
-#### 2.1. Clone the Repository
-
-```bash
-git clone https://github.com/rajatt12/agentic-ai-tutor.git
-cd agentic-ai-tutor
+    StudentSvc <--> Postgres
+    AgentSvc <--> Chroma & BM25
 ```
 
-#### 2.2. Install Python Dependencies
+---
+
+## 🚀 Quick Start Guide
+
+### 1. Start PostgreSQL with Docker
+
+Run the following command in the project root:
+
+```bash
+docker compose up -d
+```
+*(Or use `docker run --name ai_tutor_postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=ai_tutor_db -p 5432:5432 -d postgres:16-alpine`)*
+
+---
+
+### 2. Install Python Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-#### 2.3. Install Ollama and Download a Model
+---
 
-- [Download Ollama](https://ollama.ai/download) and follow platform-specific install instructions.
-- Download a local LLM (e.g., mistral or neural-chat):
+### 3. Verify Database Connection
+
+Run our automated database check:
+```bash
+python test_db.py
+```
+
+---
+
+### 4. Start the FastAPI Backend Server
 
 ```bash
-ollama pull mistral
-# OR for faster inference
-ollama pull neural-chat
+uvicorn backend.main:app --reload --port 8000
 ```
+* **Interactive API Docs (Swagger UI):** Open [http://localhost:8000/docs](http://localhost:8000/docs)
+* **Health Check:** [http://localhost:8000/health](http://localhost:8000/health)
 
-#### 2.4. Prepare Your Study Material (Optional)
+---
 
-Place any PDFs you want the tutor to "study" in the `data/study_materials/` directory.
+### 5. Launch the Streamlit Frontend
 
-Build the vector index:
+In a separate terminal:
 ```bash
-python load_documents.py
-```
-(Omit this step if you want the tutor to answer from its own general knowledge.)
-
-***
-
-### 3. Running
-
-#### 3.1. Start Ollama Server
-
-In one terminal:
-```bash
-ollama serve
-```
-Keep this running.
-
-#### 3.2. Start the Web App
-
-In a new terminal:
-```bash
-python -m streamlit run app.py
+streamlit run app.py
 ```
 
-***
+---
 
-## Troubleshooting & Notes
+## 📊 PostgreSQL Database Tables
 
-- If you see `"model 'gpt-3.5-turbo' not found"` errors, be sure you have updated all agent files to use `model="mistral"` or `model="neural-chat"`, not OpenAI models.
-- If you see `"APIConnectionError"`, make sure `ollama serve` is running.
-- If you get port errors (`address already in use`), ensure only one Ollama server is running and wait ~60 seconds for the port to free up if you just closed one.
-- If using OpenAI API, keep your `.env` file with your key; for Ollama, `.env` can be blank or missing.
+| Table Name | Description |
+| :--- | :--- |
+| `students` | Registered student profiles and creation timestamps |
+| `topic_performances` | Live rolling accuracy, attempt counts, and strength classifications (`strong`, `medium`, `weak`) |
+| `quiz_attempts` | Full history of every quiz taken, score, and percentage |
+| `quiz_questions` | Individual question logs, options, user answers, correct answers, and explanations |
+| `study_materials` | Record of uploaded notes and study materials |
 
-***
+---
 
-## Migration From OpenAI API
+## 🔌 API Endpoints Reference
 
-**This project originally used OpenAI’s GPT-3.5 Turbo API. When free credits ran out, we switched to Ollama:**
-
-- **Before:** Cloud LLM, fast and expensive, required API key and internet, risk of exceeding free quota.
-- **After:** Ollama runs entirely local (no API keys, no cost, full privacy), but responses are slower (30-60s on CPU).
-
-**Tip:** Use `model="neural-chat"` for faster answers; outputs may be less detailed, but latency drops 3x.
-
-***
-
-## Project Structure
-
-```
-.
-├── app.py                        # Streamlit UI
-├── agents/
-│   ├── planner_agent.py
-│   ├── quiz_agent.py
-│   └── retriever_agent.py
-├── utils/
-│   ├── embeddings.py
-│   └── student_profiles.py
-├── data/
-│   └── study_materials/          # Place your PDFs here
-├── database/
-│   └── vector_store/             # ChromaDB storage
-├── requirements.txt
-└── README.md
-```
-
-***
-
-## Tech Stack
-
-| Component        | Technology         |
-|------------------|-------------------|
-| LLMs             | Ollama (Mistral, Neural-Chat, etc.) |
-| Retrieval        | ChromaDB + Sentence Transformers |
-| UI               | Streamlit         |
-| Scripting        | Python 3.12       |
-| Orchestration    | LangChain (optional), custom multi-agent system |
-
-
-***
-
-
-***
-
-## References
-
-- [Ollama Documentation](https://ollama.ai/)
-- [Streamlit Docs](https://docs.streamlit.io/)
-- [ChromaDB](https://docs.trychroma.com/)
-- [Sentence-Transformers](https://www.sbert.net/)
-
-***
-
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/v1/chat` | Process student message, classify intent, and generate RAG explanation |
+| `POST` | `/api/v1/quiz/generate` | Generate adaptive MCQ quiz tailored to student's DB mastery level |
+| `POST` | `/api/v1/quiz/submit` | Auto-grade quiz, update topic performance, and persist to PostgreSQL |
+| `GET` | `/api/v1/progress/{student_id}` | Fetch full learning metrics and recommendations |
+| `POST` | `/api/v1/documents/ingest` | Chunk and index text into ChromaDB & BM25 |
