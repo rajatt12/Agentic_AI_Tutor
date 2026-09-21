@@ -1,4 +1,5 @@
 import os
+import sys
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from backend.config import settings
@@ -20,7 +21,7 @@ try:
             connect_args={"check_same_thread": False}
         )
 except Exception as e:
-    print(f"⚠️ Could not create engine for {DATABASE_URL}: {e}")
+    print(f"[WARNING] Could not create engine for {DATABASE_URL}: {e}")
     # Fallback to local SQLite
     DATABASE_URL = "sqlite:///./ai_tutor.db"
     engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})

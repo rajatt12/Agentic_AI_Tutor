@@ -2,28 +2,46 @@ import sys
 import os
 from sqlalchemy.orm import Session
 
-from agents.planner_agent import PlannerAgent
-from agents.retriever_agent import RetrieverAgent
-from agents.quiz_agent import QuizGeneratorAgent
-from utils.embeddings import EmbeddingManager
 from backend.services.student_service import StudentService
 from backend.config import settings
 
 class AgentService:
     def __init__(self):
-        self.embedding_manager = EmbeddingManager()
-        self.retriever = RetrieverAgent()
-        self.quiz_generator = QuizGeneratorAgent(
-            api_key=settings.GROQ_API_KEY,
-            model=settings.GROQ_MODEL
-        )
+        self._embedding_manager = None
+        self._retriever = None
+        self._quiz_generator = None
+
+    @property
+    def embedding_manager(self):
+        if self._embedding_manager is None:
+            from utils.embeddings import EmbeddingManager
+            self._embedding_manager = EmbeddingManager()
+        return self._embedding_manager
+
+    @property
+    def retriever(self):
+        if self._retriever is None:
+            from agents.retriever_agent import RetrieverAgent
+            self._retriever = RetrieverAgent()
+        return self._retriever
+
+    @property
+    def quiz_generator(self):
+        if self._quiz_generator is None:
+            from agents.quiz_agent import QuizGeneratorAgent
+            self._quiz_generator = QuizGeneratorAgent(
+                api_key=settings.GROQ_API_KEY,
+                model=settings.GROQ_MODEL
+            )
+        return self._quiz_generator
     
     def process_chat(self, db: Session, student_id: str, query: str, api_key: str = None, model: str = None) -> dict:
         """Execute intent classification and concept RAG generation"""
+        from agents.planner_agent import PlannerAgent
+        
         key = api_key or settings.GROQ_API_KEY
         selected_model = model or settings.GROQ_MODEL
         
-        # Build profile adapter for PlannerAgent
         class PostgresProfileAdapter:
             def get_progress_report(self, sid):
                 return StudentService.get_progress_report(db, sid)
@@ -61,7 +79,6 @@ class AgentService:
             else:
                 difficulty = "medium"
 
-        # Search for any relevant study notes as context for richer questions
         retrieved = self.retriever.retrieve_content(topic)
         context = retrieved.get("retrieved_content", "")
 

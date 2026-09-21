@@ -1,0 +1,32 @@
+# MATHEMATICS CORE CURRICULUM: KEY FORMULAS & THEOREMS
+
+## 1. Differential Calculus
+- Power Rule: d/dx(x^n) = n * x^(n-1)
+- Product Rule: d/dx(u * v) = u * (dv/dx) + v * (du/dx)
+- Quotient Rule: d/dx(u / v) = [v * (du/dx) - u * (dv/dx)] / (v^2)
+- Chain Rule: d/dx[f(g(x))] = f'(g(x)) * g'(x)
+- Exponential & Logarithmic Derivatives: d/dx(e^x) = e^x, d/dx(ln(x)) = 1/x (for x > 0), d/dx(a^x) = a^x * ln(a)
+- Trigonometric Derivatives: d/dx(sin(x)) = cos(x), d/dx(cos(x)) = -sin(x), d/dx(tan(x)) = sec^2(x)
+- L'Hopital's Rule: For indeterminate forms 0/0 or inf/inf, limit(x->a) [f(x)/g(x)] = limit(x->a) [f'(x)/g'(x)].
+
+## 2. Integral Calculus
+- Power Rule for Integration: int(x^n dx) = (x^(n+1))/(n+1) + C (for n != -1)
+- Integration of Reciprocal: int(1/x dx) = ln|x| + C
+- Integration by Parts: int(u * v dx) = u * int(v dx) - int((du/dx) * int(v dx) dx)
+- Fundamental Theorem of Calculus: int_a^b f(x) dx = F(b) - F(a), where F'(x) = f(x).
+- Trigonometric Integrals: int(sin(x) dx) = -cos(x) + C, int(cos(x) dx) = sin(x) + C, int(sec^2(x) dx) = tan(x) + C.
+
+## 3. Probability & Statistics
+- Conditional Probability: P(A | B) = P(A and B) / P(B) (provided P(B) > 0)
+- Multiplication Rule: P(A and B) = P(A | B) * P(B) = P(B | A) * P(A)
+- Bayes' Theorem: P(A | B) = [P(B | A) * P(A)] / P(B)
+- Total Probability Theorem: P(B) = sum_{i=1}^n P(B | A_i) * P(A_i) (for partition {A_1, A_2, ..., A_n})
+- Expected Value: E[X] = sum(x_i * P(X = x_i)) for discrete variables; E[X] = int(x * f(x) dx) for continuous.
+- Variance: Var(X) = E[X^2] - (E[X])^2 = sigma^2.
+
+## 4. Algebra & Coordinate Geometry
+- Quadratic Formula: For a*x^2 + b*x + c = 0, roots are x = [-b +- sqrt(b^2 - 4*a*c)] / (2*a)
+- Discriminant D = b^2 - 4*a*c: D > 0 (two distinct real roots), D = 0 (two equal real roots), D < 0 (complex conjugate roots).
+- Distance Formula: d = sqrt((x2 - x1)^2 + (y2 - y1)^2)
+- Equation of Straight Line (Slope-Intercept): y = m*x + c (where m = tan(theta) is the slope).
+- Circle Equation: (x - h)^2 + (y - k)^2 = r^2 (center at (h, k), radius r).

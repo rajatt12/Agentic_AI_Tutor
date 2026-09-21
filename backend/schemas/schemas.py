@@ -1,6 +1,30 @@
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
 
+# ----------------- Auth Schemas -----------------
+class RegisterRequest(BaseModel):
+    username: str = Field(..., min_length=2, max_length=32, description="Unique username")
+    full_name: str = Field(..., min_length=2, max_length=64, description="Student's full name")
+    password: str = Field(..., min_length=4, max_length=64, description="Password")
+    target_exam: Optional[str] = Field(default="Competitive Exams", description="Target exam (e.g. JEE, SAT, GRE)")
+
+class LoginRequest(BaseModel):
+    username: str = Field(..., description="Student username")
+    password: str = Field(..., description="Password")
+
+class StudentProfile(BaseModel):
+    student_id: str
+    username: str
+    full_name: str
+    target_exam: str
+    created_at: Optional[str] = None
+
+class AuthResponse(BaseModel):
+    status: str
+    message: str
+    student: StudentProfile
+    token: str
+
 # ----------------- Chat Schemas -----------------
 class ChatRequest(BaseModel):
     student_id: str = Field(default="student_001", description="Unique student ID")

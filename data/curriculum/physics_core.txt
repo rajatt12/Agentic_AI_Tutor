@@ -1,0 +1,38 @@
+# PHYSICS CORE CURRICULUM: KEY FORMULAS & PRINCIPLES
+
+## 1. Kinematics & Motion in One/Two Dimensions
+- First Equation of Motion: v = u + a*t (where v = final velocity, u = initial velocity, a = acceleration, t = time)
+- Second Equation of Motion: s = u*t + (1/2)*a*t^2 (where s = displacement)
+- Third Equation of Motion: v^2 = u^2 + 2*a*s
+- Projectile Motion Maximum Height: H_max = (u^2 * sin^2(theta)) / (2*g)
+- Projectile Motion Range: R = (u^2 * sin(2*theta)) / g
+- Projectile Time of Flight: T = (2*u * sin(theta)) / g
+
+## 2. Newton's Laws of Motion & Dynamics
+- Newton's First Law (Law of Inertia): An object continues in its state of rest or uniform motion in a straight line unless acted upon by a net external unbalanced force.
+- Newton's Second Law: F_net = m*a = dp/dt (Force equals rate of change of linear momentum).
+- Newton's Third Law: For every action, there is an equal and opposite reaction (F_AB = -F_BA).
+- Static Friction: f_s <= mu_s * N (where mu_s is coefficient of static friction, N is normal reaction force).
+- Kinetic Friction: f_k = mu_k * N.
+- Centripetal Force: F_c = (m * v^2) / r = m * omega^2 * r.
+
+## 3. Work, Energy, and Power
+- Work Done: W = F . d = F * d * cos(theta) (Scalar product of force and displacement vectors).
+- Work-Energy Theorem: Total Work Done = Delta K = K_final - K_initial = (1/2)*m*v^2 - (1/2)*m*u^2.
+- Potential Energy (Gravitational near surface): U = m * g * h.
+- Elastic Potential Energy (Spring): U_spring = (1/2) * k * x^2 (where k is spring constant).
+- Power: P = dW/dt = F . v (Instantaneous power).
+
+## 4. Gravitation
+- Newton's Universal Law of Gravitation: F = G * (m1 * m2) / r^2 (where G = 6.674e-11 N m^2/kg^2).
+- Acceleration due to Gravity at Earth surface: g = (G * M) / R^2.
+- Escape Velocity: v_esc = sqrt((2 * G * M) / R) = sqrt(2 * g * R) (approx 11.2 km/s for Earth).
+- Orbital Velocity of Satellite: v_orb = sqrt((G * M) / r).
+
+## 5. Thermodynamics & Thermal Physics
+- First Law of Thermodynamics: Delta Q = Delta U + Delta W (Heat added equals change in internal energy plus work done).
+- Work Done in Isobaric Process: W = P * (V2 - V1).
+- Work Done in Isothermal Process: W = n * R * T * ln(V2 / V1).
+- Work Done in Adiabatic Process: W = (P1*V1 - P2*V2) / (gamma - 1) (where gamma = C_p / C_v).
+- Ideal Gas Law: P * V = n * R * T.
+- Efficiency of Carnot Engine: eta = 1 - (T_cold / T_hot).

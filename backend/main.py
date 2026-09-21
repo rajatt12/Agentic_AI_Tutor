@@ -1,28 +1,51 @@
 import os
+import sys
+import io
 from contextlib import asynccontextmanager
+
+# Configure Windows terminal encoding to UTF-8
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stderr.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 from backend.config import settings
-from backend.database import engine, Base
-from backend.routers import chat_router, quiz_router, progress_router, documents_router
+from backend.database import engine, Base, SessionLocal
+from backend.services.auth_service import AuthService
+from backend.routers import (
+    chat_router,
+    quiz_router,
+    progress_router,
+    documents_router,
+    auth_router
+)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Auto-create PostgreSQL tables if they do not exist
+    # Startup: Auto-create PostgreSQL tables and ensure default demo account
     try:
         Base.metadata.create_all(bind=engine)
-        print("✅ Database tables verified/created in PostgreSQL")
+        db = SessionLocal()
+        try:
+            AuthService.ensure_demo_student(db)
+        finally:
+            db.close()
+        print("[SUCCESS] Database tables and demo student verified in PostgreSQL")
     except Exception as e:
-        print(f"⚠️ Database initialization warning: {e}")
+        print(f"[WARNING] Database initialization warning: {e}")
     yield
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
-    description="Multi-Agent AI Tutor API with Groq LLM, Hybrid RAG, and PostgreSQL persistence.",
+    description="Multi-Agent AI Tutor API with Groq LLM, Student Authentication, and PostgreSQL persistence.",
     lifespan=lifespan
 )
 
@@ -36,6 +59,7 @@ app.add_middleware(
 )
 
 # Register API Routers
+app.include_router(auth_router)
 app.include_router(chat_router)
 app.include_router(quiz_router)
 app.include_router(progress_router)

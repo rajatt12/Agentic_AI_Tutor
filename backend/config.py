@@ -2,20 +2,25 @@ import os
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "Agentic AI Tutor API"
+    PROJECT_NAME: str = "Agentic AI Tutor"
     VERSION: str = "1.0.0"
     
-    # LLM Settings
-    GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
-    GROQ_MODEL: str = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    @property
+    def GROQ_API_KEY(self) -> str:
+        load_dotenv(override=True)
+        return os.getenv("GROQ_API_KEY", "").strip()
+    
+    @property
+    def GROQ_MODEL(self) -> str:
+        return os.getenv("GROQ_MODEL", "openai/gpt-oss-120b").strip()
     
     # Database Settings
     DATABASE_URL: str = os.getenv(
         "DATABASE_URL", 
-        "postgresql://postgres:postgres@localhost:5432/ai_tutor_db"
+        "postgresql://postgres:rajat123@localhost:5432/ai_tutor_db"
     )
     
     # Server Settings

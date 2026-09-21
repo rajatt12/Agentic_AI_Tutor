@@ -7,8 +7,11 @@ class Student(Base):
     __tablename__ = "students"
 
     student_id = Column(String(64), primary_key=True, index=True)
-    name = Column(String(128), nullable=True)
+    username = Column(String(64), unique=True, index=True, nullable=True)
+    full_name = Column(String(128), nullable=True)
     email = Column(String(128), nullable=True)
+    hashed_password = Column(String(256), nullable=True)
+    target_exam = Column(String(64), default="Competitive Exams")  # JEE, SAT, GRE, MCAT, etc.
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships

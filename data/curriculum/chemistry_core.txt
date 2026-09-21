@@ -1,0 +1,26 @@
+# CHEMISTRY CORE CURRICULUM: KEY CONCEPTS & FORMULAS
+
+## 1. Physical Chemistry & Gas Laws
+- Ideal Gas Equation: P * V = n * R * T (where R = 8.314 J/(mol*K) = 0.0821 L*atm/(mol*K)).
+- Dalton's Law of Partial Pressures: P_total = P1 + P2 + P3 + ... where P_i = x_i * P_total (x_i is mole fraction).
+- Graham's Law of Effusion/Diffusion: Rate1 / Rate2 = sqrt(M2 / M1) (Rate inversely proportional to square root of molar mass).
+- van der Waals Equation for Real Gases: (P + a*n^2/V^2) * (V - n*b) = n*R*T (where 'a' accounts for intermolecular forces and 'b' for molecular volume).
+
+## 2. Chemical Kinetics & Equilibrium
+- Rate Law: Rate = k * [A]^m * [B]^n (where m and n are reaction orders with respect to A and B).
+- First Order Integrated Rate Law: ln([A]_t / [A]_0) = -k * t, Half-life t_1/2 = 0.693 / k.
+- Arrhenius Equation: k = A * e^(-E_a / (R*T)) (where E_a is activation energy, A is frequency factor).
+- Chemical Equilibrium Constant: K_eq = ([C]^c * [D]^d) / ([A]^a * [B]^b) for reaction aA + bB <=> cC + dD.
+- Le Chatelier's Principle: If a dynamic equilibrium is disturbed by changing conditions (temperature, pressure, concentration), the position of equilibrium shifts to counteract the change.
+
+## 3. Electrochemistry & Thermodynamics
+- Gibbs Free Energy: Delta G = Delta H - T * Delta S.
+- Standard Cell Potential: E_cell^0 = E_cathode^0 - E_anode^0.
+- Nernst Equation: E_cell = E_cell^0 - (R*T / (n*F)) * ln(Q) = E_cell^0 - (0.0591 / n) * log10(Q) at 298 K.
+- Relation between Delta G^0 and E_cell^0: Delta G^0 = -n * F * E_cell^0 = -R * T * ln(K_eq).
+
+## 4. Inorganic & Periodic Trends
+- Atomic Radius: Decreases across a period (left to right) due to increasing effective nuclear charge; increases down a group due to additional electron shells.
+- Ionization Energy: Increases across a period; decreases down a group.
+- Electronegativity: Increases across a period; decreases down a group (Fluorine has highest electronegativity of 4.0 on Pauling scale).
+- Electron Affinity: Generally becomes more negative across a period; decreases down a group.

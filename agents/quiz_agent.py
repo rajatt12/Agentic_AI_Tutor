@@ -11,7 +11,7 @@ load_dotenv()
 class QuizGeneratorAgent:
     def __init__(self, api_key=None, model=None):
         self.api_key = api_key or os.getenv("GROQ_API_KEY", "")
-        self.model = model or os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+        self.model = model or os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
         
         self.client = OpenAI(
             base_url="https://api.groq.com/openai/v1",
@@ -28,6 +28,27 @@ class QuizGeneratorAgent:
             )
         if model:
             self.model = model
+
+    def _call_llm(self, messages, temperature=0.3, max_tokens=1500):
+        """Call Groq LLM with automatic model fallback"""
+        candidate_models = [self.model, "openai/gpt-oss-120b", "qwen/qwen3.8-27b", "openai/gpt-oss-20b"]
+        unique_models = []
+        for m in candidate_models:
+            if m and m not in unique_models:
+                unique_models.append(m)
+
+        for mod in unique_models:
+            try:
+                response = self.client.chat.completions.create(
+                    model=mod,
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens
+                )
+                return response.choices[0].message.content
+            except Exception as e:
+                continue
+        return None
     
     def generate_quiz(self, topic, difficulty="medium", num_questions=3, context=""):
         """Generate adaptive quiz questions using Groq"""
@@ -58,21 +79,18 @@ Requirements:
 - 'correct_answer' must be just the letter: 'A', 'B', 'C', or 'D'.
 - Output strictly raw JSON, with no surrounding explanations or extra text."""
         
-        try:
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": "You are a quiz generation expert. Output only valid JSON arrays."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.3
-            )
-            
-            content = response.choices[0].message.content.strip()
-            return self._parse_json_response(content)
-        except Exception as e:
-            print(f"Error in QuizGeneratorAgent: {e}")
-            return []
+        content = self._call_llm(
+            messages=[
+                {"role": "system", "content": "You are a quiz generation expert. Output only valid JSON arrays."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3,
+            max_tokens=2000
+        )
+        
+        if content:
+            return self._parse_json_response(content.strip())
+        return []
     
     def _parse_json_response(self, content):
         """Extract and parse JSON array from LLM response"""
