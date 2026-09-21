@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agentic AI Tutor | Adaptive Learning Platform</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --bg-primary: #0a0d14;
+      --bg-secondary: #0f1422;
+      --bg-card: rgba(18, 24, 38, 0.75);
+      --bg-card-hover: rgba(26, 34, 52, 0.9);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-border-glow: rgba(99, 102, 241, 0.35);
+      
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+
+      --accent-cyan: #06b6d4;
+      --accent-indigo: #6366f1;
+      --accent-purple: #8b5cf6;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+
+      --gradient-primary: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+      --gradient-accent: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+      
+      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(6, 182, 212, 0.1) 0%, transparent 45%);
+      background-attachment: fixed;
+    }
+
+    h1, h2, h3, h4, h5 { font-family: 'Outfit', sans-serif; font-weight: 700; }
+    code { font-family: 'JetBrains Mono', monospace; }
+
+    .app-container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 1.25rem 1.5rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .glass-panel {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      transition: all 0.25s ease;
+    }
+    .glass-panel:hover { border-color: var(--glass-border-glow); }
+
+    .nav-tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: transparent;
+      border: none;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .nav-tab-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.06); }
+    .nav-tab-btn.active {
+      color: #fff;
+      background: var(--gradient-primary);
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.4rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+      background: var(--gradient-primary);
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+      transition: all 0.2s ease;
+    }
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+    }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.65rem 1.1rem;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); }
+
+    .input-field {
+      width: 100%;
+      padding: 0.85rem 1.1rem;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      background: rgba(15, 20, 34, 0.85);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .input-field:focus {
+      border-color: var(--accent-indigo);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-radius: var(--radius-full);
+    }
+    .badge-strong { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-medium { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-weak { background: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 0.3s ease forwards; }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Top Header -->
+    <header style="display:flex; justify-content:space-between; align-items:center; padding:1.25rem 0; margin-bottom:1.5rem; border-bottom:1px solid var(--glass-border); flex-wrap:wrap; gap:1rem;">
+      <div style="display:flex; align-items:center; gap:0.85rem;">
+        <div style="width:42px; height:42px; border-radius:12px; background:var(--gradient-primary); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 15px rgba(99,102,241,0.4);">
+          <i data-lucide="sparkles" style="color:#fff;"></i>
+        </div>
+        <div>
+          <h1 style="font-size:1.35rem; line-height:1.2;">Agentic AI Tutor</h1>
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.2rem; font-size:0.75rem;">
+            <span id="backend-status-pill" style="display:flex; align-items:center; gap:0.3rem; color:var(--accent-emerald);">
+              <span class="pulse-dot"></span> <span id="backend-status-text">FastAPI & Postgres Connected</span>
+            </span>
+            <span style="color:var(--text-muted)">•</span>
+            <span style="color:var(--accent-cyan); display:flex; align-items:center; gap:0.25rem;">
+              <i data-lucide="cpu" style="width:12px; height:12px;"></i> <span id="active-model-display">llama-3.3-70b-versatile</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav style="display:flex; background:rgba(15,20,34,0.6); padding:0.35rem; border-radius:var(--radius-full); border:1px solid var(--glass-border); gap:0.3rem;">
+        <button class="nav-tab-btn active" onclick="switchTab('chat')"><i data-lucide="message-square"></i> Chat & Learn</button>
+        <button class="nav-tab-btn" onclick="switchTab('quiz')"><i data-lucide="check-circle-2"></i> Adaptive Quiz</button>
+        <button class="nav-tab-btn" onclick="switchTab('progress')"><i data-lucide="bar-chart-3"></i> My Progress</button>
+        <button class="nav-tab-btn" onclick="switchTab('notes')"><i data-lucide="book-open"></i> Knowledge Base</button>
+      </nav>
+
+      <!-- Student ID / Settings -->
+      <div style="display:flex; align-items:center; gap:0.75rem;">
+        <div style="display:flex; align-items:center; gap:0.4rem; padding:0.45rem 0.85rem; background:rgba(255,255,255,0.04); border-radius:var(--radius-full); border:1px solid var(--glass-border); font-size:0.85rem;">
+          <i data-lucide="database" style="width:14px; color:var(--accent-indigo);"></i>
+          <span style="color:var(--text-secondary);">Student:</span>
+          <strong id="student-id-display">student_001</strong>
+        </div>
+        <button class="btn-secondary" onclick="openSettingsModal()" style="padding:0.5rem 0.75rem;">
+          <i data-lucide="settings" style="width:16px;"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main style="flex:1;">
+      
+      <!-- ================= TAB 1: CHAT & LEARN ================= -->
+      <div id="tab-chat" class="fade-in" style="display:flex; flex-direction:column; height:calc(100vh - 180px); gap:1rem;">
+        <div id="chat-messages" class="glass-panel" style="flex:1; overflow-y:auto; padding:1.5rem; display:flex; flex-direction:column; gap:1.25rem;">
+          <div style="display:flex; justify-content:flex-start;">
+            <div style="max-width:85%; background:rgba(255,255,255,0.04); border:1px solid var(--glass-border); border-radius:16px 16px 16px 4px; padding:1.15rem 1.4rem; line-height:1.65; font-size:0.96rem;">
+              👋 Welcome! I am your <strong>Agentic AI Tutor</strong> powered by Groq & PostgreSQL. Ask me any math, physics, or chemistry concept, or ask for practice problems!
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Prompt Chips -->
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <button class="btn-secondary" style="font-size:0.8rem; border-radius:var(--radius-full);" onclick="sendQuickPrompt('Explain Bayes Theorem with an intuitive formula')">
+            ✨ Explain Bayes' Theorem
+          </button>
+          <button class="btn-secondary" style="font-size:0.8rem; border-radius:var(--radius-full);" onclick="sendQuickPrompt('Explain Newton\'s 3 Laws of Motion with real examples')">
+            ✨ Newton's 3 Laws
+          </button>
+          <button class="btn-secondary" style="font-size:0.8rem; border-radius:var(--radius-full);" onclick="sendQuickPrompt('Explain the Chain Rule in Calculus')">
+            ✨ Calculus Chain Rule
+          </button>
+        </div>
+
+        <form onsubmit="handleChatSubmit(event)" style="display:flex; gap:0.75rem;">
+          <input type="text" id="chat-input" class="input-field" placeholder="Ask your tutor anything (e.g., 'Explain Doppler Effect')..." required />
+          <button type="submit" id="chat-send-btn" class="btn-primary" style="min-width:110px;">
+            <i data-lucide="send" style="width:16px;"></i> Ask
+          </button>
+        </form>
+      </div>
+
+      <!-- ================= TAB 2: ADAPTIVE QUIZ ================= -->
+      <div id="tab-quiz" class="fade-in" style="display:none; max-width:800px; margin:0 auto;">
+        
+        <!-- Setup Form -->
+        <div id="quiz-setup-card" class="glass-panel" style="padding:2.5rem;">
+          <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem;">
+            <div style="padding:0.5rem; border-radius:10px; background:rgba(99,102,241,0.15);">
+              <i data-lucide="flame" style="color:var(--accent-indigo);"></i>
+            </div>
+            <h2 style="font-size:1.4rem;">Adaptive Quiz Generator</h2>
+          </div>
+          <p style="color:var(--text-secondary); margin-bottom:2rem; font-size:0.92rem;">
+            Quizzes dynamically adapt in difficulty based on your historical mastery stored in PostgreSQL.
+          </p>
+
+          <form onsubmit="handleQuizGenerate(event)" style="display:flex; flex-direction:column; gap:1.25rem;">
+            <div>
+              <label style="display:block; font-size:0.88rem; font-weight:600; margin-bottom:0.4rem; color:var(--text-secondary);">Subject or Topic</label>
+              <input type="text" id="quiz-topic-input" class="input-field" placeholder="e.g. Probability, Kinematics, Thermodynamics" required />
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+              <div>
+                <label style="display:block; font-size:0.88rem; font-weight:600; margin-bottom:0.4rem; color:var(--text-secondary);">Number of Questions</label>
+                <select id="quiz-count-select" class="input-field">
+                  <option value="3">3 Questions (Quick Check)</option>
+                  <option value="5" selected>5 Questions (Standard)</option>
+                  <option value="10">10 Questions (Full Assessment)</option>
+                </select>
+              </div>
+              <div>
+                <label style="display:block; font-size:0.88rem; font-weight:600; margin-bottom:0.4rem; color:var(--text-secondary);">Difficulty</label>
+                <select id="quiz-difficulty-select" class="input-field">
+                  <option value="" selected>⚡ Auto-Adaptive (PostgreSQL Driven)</option>
+                  <option value="easy">Easy (Fundamentals)</option>
+                  <option value="medium">Medium (Standard Applications)</option>
+                  <option value="hard">Hard (Competitive Exam Level)</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="submit" id="quiz-gen-btn" class="btn-primary" style="margin-top:1rem; padding:0.9rem;">
+              <i data-lucide="sparkles" style="width:18px;"></i> Generate Adaptive Quiz
+            </button>
+          </form>
+        </div>
+
+        <!-- Taking Quiz Container -->
+        <div id="quiz-active-container" style="display:none; flex-direction:column; gap:1.5rem;"></div>
+
+        <!-- Result Container -->
+        <div id="quiz-result-container" style="display:none; flex-direction:column; gap:1.5rem;"></div>
+      </div>
+
+      <!-- ================= TAB 3: MY PROGRESS ================= -->
+      <div id="tab-progress" class="fade-in" style="display:none;">
+        <div id="progress-content" style="display:flex; flex-direction:column; gap:1.5rem;">
+          <div style="text-align:center; padding:3rem; color:var(--text-muted);">
+            <i data-lucide="loader-2" class="animate-spin" style="margin-bottom:1rem;"></i>
+            <p>Loading PostgreSQL Analytics...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 4: KNOWLEDGE BASE ================= -->
+      <div id="tab-notes" class="fade-in" style="display:none; max-width:800px; margin:0 auto;">
+        <div class="glass-panel" style="padding:2.25rem;">
+          <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem;">
+            <div style="padding:0.5rem; border-radius:10px; background:rgba(6,182,212,0.15);">
+              <i data-lucide="upload-cloud" style="color:var(--accent-cyan);"></i>
+            </div>
+            <h2 style="font-size:1.4rem;">Knowledge Base Ingestion (Hybrid RAG)</h2>
+          </div>
+          <p style="color:var(--text-secondary); margin-bottom:1.75rem; font-size:0.92rem;">
+            Add notes or formulas to index into <strong>ChromaDB (HNSW Dense)</strong> and <strong>BM25 (Sparse)</strong>.
+          </p>
+
+          <form onsubmit="handleDocumentIngest(event)" style="display:flex; flex-direction:column; gap:1.25rem;">
+            <div>
+              <label style="display:block; font-size:0.88rem; font-weight:600; margin-bottom:0.4rem; color:var(--text-secondary);">Document Title</label>
+              <input type="text" id="doc-title-input" class="input-field" placeholder="e.g. Physics Kinematics Cheat Sheet" required />
+            </div>
+            <div>
+              <label style="display:block; font-size:0.88rem; font-weight:600; margin-bottom:0.4rem; color:var(--text-secondary);">Content / Notes</label>
+              <textarea id="doc-content-input" class="input-field" rows="8" placeholder="Paste formulas, definitions, or textbook notes here..." required></textarea>
+            </div>
+            <button type="submit" id="doc-submit-btn" class="btn-primary" style="padding:0.9rem;">
+              <i data-lucide="sparkles" style="width:18px;"></i> Index into ChromaDB & BM25
+            </button>
+          </form>
+
+          <div id="doc-status-msg" style="display:none; margin-top:1.25rem; padding:1rem; border-radius:10px; font-size:0.9rem;"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); z-index:1000; align-items:center; justify-content:center; padding:1rem;">
+    <div class="glass-panel" style="width:100%; max-width:500px; padding:2rem; background:var(--bg-secondary);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+        <h2 style="font-size:1.25rem;">Settings & Credentials</h2>
+        <button onclick="closeSettingsModal()" style="background:none; border:none; color:var(--text-muted); cursor:pointer;"><i data-lucide="x"></i></button>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:1.25rem;">
+        <div>
+          <label style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.4rem; color:var(--text-secondary);">Groq API Key</label>
+          <input type="password" id="settings-key-input" class="input-field" placeholder="gsk_..." />
+          <span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem; display:block;">Leave blank to use backend .env key.</span>
+        </div>
+        <div>
+          <label style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.4rem; color:var(--text-secondary);">Groq Model</label>
+          <select id="settings-model-select" class="input-field">
+            <option value="llama-3.3-70b-versatile" selected>Llama 3.3 70B (Recommended)</option>
+            <option value="llama-3.1-8b-instant">Llama 3.1 8B (Fastest)</option>
+            <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+            <option value="gemma2-9b-it">Gemma 2 9B</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.4rem; color:var(--text-secondary);">Student ID</label>
+          <input type="text" id="settings-studentid-input" class="input-field" value="student_001" />
+        </div>
+      </div>
+
+      <div style="margin-top:2rem; display:flex; justify-content:flex-end; gap:0.75rem;">
+        <button class="btn-secondary" onclick="closeSettingsModal()">Cancel</button>
+        <button class="btn-primary" onclick="saveSettings()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let currentStudentId = localStorage.getItem('studentId') || 'student_001';
+    let groqApiKey = localStorage.getItem('groqApiKey') || '';
+    let groqModel = localStorage.getItem('groqModel') || 'llama-3.3-70b-versatile';
+    let currentQuizData = null;
+    let currentQuizAnswers = {};
+    let currentQuizIndex = 0;
+
+    const API_BASE = 'http://localhost:8000/api/v1';
+
+    // Init Lucide Icons
+    function refreshIcons() {
+      lucide.createIcons();
+    }
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('student-id-display').innerText = currentStudentId;
+      document.getElementById('active-model-display').innerText = groqModel;
+      refreshIcons();
+      checkBackend();
+    });
+
+    async function checkBackend() {
+      try {
+        const res = await fetch('http://localhost:8000/health');
+        if (res.ok) {
+          document.getElementById('backend-status-text').innerText = 'FastAPI & Postgres Connected';
+        }
+      } catch (e) {
+        document.getElementById('backend-status-text').innerText = 'Connecting to Backend (Port 8000)...';
+      }
+    }
+
+    function switchTab(tabId) {
+      ['chat', 'quiz', 'progress', 'notes'].forEach(t => {
+        document.getElementById(`tab-${t}`).style.display = (t === tabId) ? (t === 'chat' ? 'flex' : 'block') : 'none';
+      });
+      document.querySelectorAll('.nav-tab-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', ['chat', 'quiz', 'progress', 'notes'][i] === tabId);
+      });
+      if (tabId === 'progress') loadProgress();
+      refreshIcons();
+    }
+
+    // Modal controls
+    function openSettingsModal() {
+      document.getElementById('settings-key-input').value = groqApiKey;
+      document.getElementById('settings-model-select').value = groqModel;
+      document.getElementById('settings-studentid-input').value = currentStudentId;
+      document.getElementById('settings-modal').style.display = 'flex';
+      refreshIcons();
+    }
+    function closeSettingsModal() {
+      document.getElementById('settings-modal').style.display = 'none';
+    }
+    function saveSettings() {
+      groqApiKey = document.getElementById('settings-key-input').value;
+      groqModel = document.getElementById('settings-model-select').value;
+      currentStudentId = document.getElementById('settings-studentid-input').value || 'student_001';
+      localStorage.setItem('groqApiKey', groqApiKey);
+      localStorage.setItem('groqModel', groqModel);
+      localStorage.setItem('studentId', currentStudentId);
+      document.getElementById('student-id-display').innerText = currentStudentId;
+      document.getElementById('active-model-display').innerText = groqModel;
+      closeSettingsModal();
+    }
+
+    // Chat
+    async function handleChatSubmit(e) {
+      e?.preventDefault();
+      const input = document.getElementById('chat-input');
+      const query = input.value.trim();
+      if (!query) return;
+      input.value = '';
+
+      appendChatMessage('user', query);
+      const btn = document.getElementById('chat-send-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> Thinking...';
+      refreshIcons();
+
+      try {
+        const res = await fetch(`${API_BASE}/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            student_id: currentStudentId,
+            query: query,
+            groq_api_key: groqApiKey || undefined,
+            groq_model: groqModel || undefined
+          })
+        });
+        const data = await res.json();
+        appendChatMessage('assistant', data.explanation || data.response || data.message || 'Processed.', data.practice_quiz, data.plan_executed);
+      } catch (err) {
+        appendChatMessage('assistant', `⚠️ Error connecting to FastAPI: ${err.message}. Ensure backend is running on port 8000.`);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="send"></i> Ask';
+        refreshIcons();
+      }
+    }
+
+    function sendQuickPrompt(prompt) {
+      document.getElementById('chat-input').value = prompt;
+      handleChatSubmit();
+    }
+
+    function appendChatMessage(role, text, practiceQuiz = null, planExecuted = null) {
+      const container = document.getElementById('chat-messages');
+      const isUser = role === 'user';
+      const div = document.createElement('div');
+      div.style.display = 'flex';
+      div.style.justifyContent = isUser ? 'flex-end' : 'flex-start';
+
+      let contentHtml = '';
+      if (planExecuted && planExecuted.length > 0) {
+        contentHtml += `<div style="display:flex; align-items:center; gap:0.4rem; padding:0.35rem 0.65rem; background:rgba(99,102,241,0.1); border-radius:6px; font-size:0.75rem; color:var(--accent-cyan); margin-bottom:0.75rem;">
+          <i data-lucide="sparkles" style="width:12px;"></i> <strong>Workflow:</strong> ${planExecuted.join(' ➔ ')}
+        </div>`;
+      }
+
+      contentHtml += `<div style="line-height:1.6; white-space:pre-wrap;">${text}</div>`;
+
+      if (practiceQuiz && practiceQuiz.length > 0) {
+        contentHtml += `<div style="margin-top:1rem; padding-top:0.75rem; border-top:1px solid rgba(255,255,255,0.1);">
+          <strong style="color:var(--accent-amber); font-size:0.88rem; display:block; margin-bottom:0.5rem;">🎯 Concept Practice Problems:</strong>`;
+        practiceQuiz.forEach(q => {
+          contentHtml += `<div style="background:rgba(15,20,34,0.7); padding:0.75rem; border-radius:8px; margin-bottom:0.5rem; font-size:0.88rem;">
+            <p style="font-weight:600; margin-bottom:0.4rem;">Q${q.id}: ${q.question}</p>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.4rem;">
+              ${q.options.map(opt => `<button style="padding:0.4rem 0.6rem; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:#fff; text-align:left; cursor:pointer;" onclick="alert('Correct Answer: ${q.correct_answer}\\n\\nExplanation: ${q.explanation}')">${opt}</button>`).join('')}
+            </div>
+          </div>`;
+        });
+        contentHtml += `</div>`;
+      }
+
+      div.innerHTML = `
+        <div style="max-width:85%; background:${isUser ? 'var(--gradient-primary)' : 'rgba(255,255,255,0.04)'}; border:${isUser ? 'none' : '1px solid var(--glass-border)'}; border-radius:${isUser ? '16px 16px 4px 16px' : '16px 16px 16px 4px'}; padding:1.15rem 1.4rem; box-shadow:${isUser ? '0 4px 15px rgba(99,102,241,0.25)' : 'none'};">
+          ${contentHtml}
+        </div>
+      `;
+
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+      refreshIcons();
+    }
+
+    // Quiz
+    async function handleQuizGenerate(e) {
+      e?.preventDefault();
+      const topic = document.getElementById('quiz-topic-input').value.trim();
+      const count = parseInt(document.getElementById('quiz-count-select').value);
+      const difficulty = document.getElementById('quiz-difficulty-select').value;
+      const btn = document.getElementById('quiz-gen-btn');
+
+      btn.disabled = true;
+      btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> Generating Questions via Groq...';
+      refreshIcons();
+
+      try {
+        const res = await fetch(`${API_BASE}/quiz/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            student_id: currentStudentId,
+            topic: topic,
+            num_questions: count,
+            difficulty: difficulty || undefined,
+            groq_api_key: groqApiKey || undefined,
+            groq_model: groqModel || undefined
+          })
+        });
+        currentQuizData = await res.json();
+        currentQuizAnswers = {};
+        currentQuizIndex = 0;
+        renderActiveQuiz();
+      } catch (err) {
+        alert(`Failed to generate quiz: ${err.message}`);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="sparkles"></i> Generate Adaptive Quiz';
+        refreshIcons();
+      }
+    }
+
+    function renderActiveQuiz() {
+      document.getElementById('quiz-setup-card').style.display = 'none';
+      document.getElementById('quiz-result-container').style.display = 'none';
+      const container = document.getElementById('quiz-active-container');
+      container.style.display = 'flex';
+
+      const q = currentQuizData.questions[currentQuizIndex];
+      const total = currentQuizData.questions.length;
+      const selected = currentQuizAnswers[q.id];
+
+      container.innerHTML = `
+        <div class="glass-panel" style="padding:1.25rem;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.75rem;">
+            <span>Topic: <strong>${currentQuizData.topic}</strong> <span class="badge badge-medium">${currentQuizData.difficulty}</span></span>
+            <span style="color:var(--accent-cyan); font-weight:600;">Question ${currentQuizIndex + 1} of ${total}</span>
+          </div>
+          <div style="height:6px; background:rgba(255,255,255,0.08); border-radius:999px;">
+            <div style="height:100%; width:${((currentQuizIndex + 1) / total) * 100}%; background:var(--gradient-primary); border-radius:999px; transition:width 0.3s ease;"></div>
+          </div>
+        </div>
+
+        <div class="glass-panel" style="padding:2rem;">
+          <h3 style="font-size:1.15rem; line-height:1.5; margin-bottom:1.5rem;">${q.question}</h3>
+          <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:2rem;">
+            ${q.options.map(opt => {
+              const letter = opt.split(')')[0].trim();
+              const isSel = selected === letter;
+              return `<div onclick="selectQuizOption(${q.id}, '${letter}')" style="display:flex; align-items:center; gap:1rem; padding:1rem 1.25rem; background:${isSel ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.03)'}; border:1px solid ${isSel ? 'var(--accent-indigo)' : 'var(--glass-border)'}; border-radius:12px; cursor:pointer;">
+                <div style="width:24px; height:24px; border-radius:50%; border:2px solid ${isSel ? 'var(--accent-indigo)' : 'var(--text-muted)'}; background:${isSel ? 'var(--accent-indigo)' : 'transparent'}; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; color:#fff;">${isSel ? '✓' : letter}</div>
+                <span>${opt}</span>
+              </div>`;
+            }).join('')}
+          </div>
+
+          <div style="display:flex; justify-content:space-between;">
+            <button class="btn-secondary" onclick="prevQuizQuestion()" ${currentQuizIndex === 0 ? 'disabled' : ''}>Back</button>
+            ${currentQuizIndex < total - 1 
+              ? `<button class="btn-primary" onclick="nextQuizQuestion()">Next Question ➔</button>`
+              : `<button class="btn-primary" onclick="submitQuizAnswers()" style="background:linear-gradient(135deg, #10b981 0%, #06b6d4 100%);">Submit & Save to Postgres</button>`}
+          </div>
+        </div>
+      `;
+      refreshIcons();
+    }
+
+    function selectQuizOption(qId, letter) {
+      currentQuizAnswers[qId] = letter;
+      renderActiveQuiz();
+    }
+    function nextQuizQuestion() { currentQuizIndex++; renderActiveQuiz(); }
+    function prevQuizQuestion() { currentQuizIndex--; renderActiveQuiz(); }
+
+    async function submitQuizAnswers() {
+      const questionsPayload = currentQuizData.questions.map(q => ({
+        id: q.id,
+        question: q.question,
+        options: q.options,
+        user_answer: currentQuizAnswers[q.id] || '',
+        correct_answer: q.correct_answer,
+        explanation: q.explanation
+      }));
+
+      try {
+        const res = await fetch(`${API_BASE}/quiz/submit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            student_id: currentStudentId,
+            topic: currentQuizData.topic,
+            difficulty: currentQuizData.difficulty,
+            questions: questionsPayload
+          })
+        });
+        const result = await res.json();
+        renderQuizResult(result);
+        if (result.accuracy >= 70) {
+          confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+        }
+      } catch (err) {
+        alert(`Failed to submit: ${err.message}`);
+      }
+    }
+
+    function renderQuizResult(res) {
+      document.getElementById('quiz-active-container').style.display = 'none';
+      const container = document.getElementById('quiz-result-container');
+      container.style.display = 'flex';
+
+      const isSuccess = res.accuracy >= 70;
+      container.innerHTML = `
+        <div class="glass-panel" style="text-align:center; padding:2.5rem; background:radial-gradient(circle at center, ${isSuccess ? 'rgba(16,185,129,0.15)' : 'rgba(244,63,94,0.15)'} 0%, rgba(18,24,38,0.8) 70%);">
+          <h2 style="font-size:1.85rem; margin-bottom:0.5rem;">${isSuccess ? '🎉 Great Job!' : '📚 Keep Practicing!'}</h2>
+          <p style="color:var(--text-secondary); margin-bottom:1.5rem;">Score: <strong>${res.score} / ${res.total_questions}</strong> (${res.accuracy}%)</p>
+          <div style="display:inline-flex; align-items:center; gap:0.6rem; padding:0.6rem 1.2rem; background:rgba(255,255,255,0.05); border-radius:999px; font-size:0.85rem; margin-bottom:1.5rem;">
+            <span>PostgreSQL Topic Accuracy: <strong>${res.updated_topic_accuracy}%</strong></span>
+            <span class="badge badge-${res.updated_topic_strength}">${res.updated_topic_strength}</span>
+          </div>
+          <div>
+            <button class="btn-primary" onclick="resetQuizView()">Take Another Quiz</button>
+          </div>
+        </div>
+
+        <h3 style="font-size:1.2rem;">Answer Review</h3>
+        ${res.results.map(r => `
+          <div class="glass-panel" style="padding:1.25rem; border-left:4px solid ${r.is_correct ? 'var(--accent-emerald)' : 'var(--accent-rose)'};">
+            <div style="display:flex; justify-content:space-between; margin-bottom:0.4rem;">
+              <strong>Question ${r.id}: ${r.question}</strong>
+              <span class="badge ${r.is_correct ? 'badge-strong' : 'badge-weak'}">${r.is_correct ? 'Correct' : 'Incorrect'}</span>
+            </div>
+            <p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:0.5rem;">
+              Your Answer: <strong style="color:${r.is_correct ? '#34d399' : '#fb7185'}">${r.user_answer || '(None)'}</strong> • Correct: <strong style="color:#34d399;">${r.correct_answer}</strong>
+            </p>
+            <div style="background:rgba(255,255,255,0.03); padding:0.65rem; border-radius:8px; font-size:0.83rem;">
+              <strong>Explanation:</strong> ${r.explanation}
+            </div>
+          </div>
+        `).join('')}
+      `;
+      refreshIcons();
+    }
+
+    function resetQuizView() {
+      document.getElementById('quiz-result-container').style.display = 'none';
+      document.getElementById('quiz-setup-card').style.display = 'block';
+    }
+
+    // Progress
+    async function loadProgress() {
+      const container = document.getElementById('progress-content');
+      container.innerHTML = '<div style="text-align:center; padding:3rem; color:var(--text-muted);"><p>Loading PostgreSQL Analytics...</p></div>';
+
+      try {
+        const res = await fetch(`${API_BASE}/progress/${currentStudentId}`);
+        const data = await res.json();
+        const topics = Object.values(data.progress || {});
+
+        container.innerHTML = `
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
+            <div class="glass-panel" style="padding:1.5rem;">
+              <div style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase;">Topics Practiced</div>
+              <div style="font-size:1.8rem; font-weight:800; margin-top:0.2rem;">${data.topics_practiced || 0}</div>
+            </div>
+            <div class="glass-panel" style="padding:1.5rem;">
+              <div style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase;">Total Quizzes Taken</div>
+              <div style="font-size:1.8rem; font-weight:800; margin-top:0.2rem;">${data.total_quizzes || 0}</div>
+            </div>
+            <div class="glass-panel" style="padding:1.5rem;">
+              <div style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase;">Focus Areas</div>
+              <div style="font-size:1.8rem; font-weight:800; margin-top:0.2rem; color:${data.weak_topics.length > 0 ? 'var(--accent-rose)' : 'inherit'};">${data.weak_topics.length}</div>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 340px; gap:1.5rem;">
+            <div class="glass-panel" style="padding:1.75rem;">
+              <h3 style="font-size:1.15rem; margin-bottom:1.5rem;">PostgreSQL Topic Mastery Breakdown</h3>
+              ${topics.length === 0 ? '<p style="color:var(--text-muted); text-align:center;">No quiz records yet. Take a quiz to record progress!</p>' : `
+                <div style="display:flex; flex-direction:column; gap:1.2rem;">
+                  ${topics.map(t => `
+                    <div style="background:rgba(255,255,255,0.02); padding:1.1rem; border-radius:12px; border:1px solid var(--glass-border);">
+                      <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                        <strong>${t.topic} <span style="font-size:0.8rem; color:var(--text-muted);">(${t.attempts} attempts)</span></strong>
+                        <div><strong>${t.accuracy}%</strong> <span class="badge badge-${t.strength}">${t.strength}</span></div>
+                      </div>
+                      <div style="height:6px; background:rgba(255,255,255,0.08); border-radius:999px;">
+                        <div style="height:100%; width:${Math.min(t.accuracy, 100)}%; background:${t.strength === 'strong' ? 'var(--accent-emerald)' : (t.strength === 'medium' ? 'var(--accent-amber)' : 'var(--accent-rose)')}; border-radius:999px;"></div>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              `}
+            </div>
+
+            <div class="glass-panel" style="padding:1.75rem; height:fit-content;">
+              <h3 style="font-size:1.15rem; margin-bottom:1.25rem;">💡 Recommendations</h3>
+              ${data.recommendations.map(r => `
+                <div style="padding:0.85rem; background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.2); border-radius:10px; font-size:0.88rem; margin-bottom:0.75rem;">${r}</div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+        refreshIcons();
+      } catch (err) {
+        container.innerHTML = `<p style="color:var(--accent-rose); text-align:center;">Failed to load progress: ${err.message}</p>`;
+      }
+    }
+
+    // Ingestion
+    async function handleDocumentIngest(e) {
+      e?.preventDefault();
+      const title = document.getElementById('doc-title-input').value.trim();
+      const content = document.getElementById('doc-content-input').value.trim();
+      const btn = document.getElementById('doc-submit-btn');
+      const status = document.getElementById('doc-status-msg');
+
+      btn.disabled = true;
+      btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> Vectorizing & Indexing...';
+      refreshIcons();
+
+      try {
+        const res = await fetch(`${API_BASE}/documents/ingest`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, content, source_type: 'notes' })
+        });
+        const data = await res.json();
+        status.style.display = 'block';
+        status.style.background = 'rgba(16,185,129,0.15)';
+        status.style.color = '#34d399';
+        status.style.border = '1px solid rgba(16,185,129,0.3)';
+        status.innerText = `✅ ${data.message}`;
+        document.getElementById('doc-title-input').value = '';
+        document.getElementById('doc-content-input').value = '';
+      } catch (err) {
+        status.style.display = 'block';
+        status.style.background = 'rgba(244,63,94,0.15)';
+        status.style.color = '#fb7185';
+        status.innerText = `❌ Ingestion error: ${err.message}`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="sparkles"></i> Index into ChromaDB & BM25';
+        refreshIcons();
+      }
+    }
+  </script>
+</body>
+</html>

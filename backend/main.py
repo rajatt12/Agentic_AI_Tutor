@@ -1,6 +1,9 @@
+import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 from backend.config import settings
 from backend.database import engine, Base
@@ -11,20 +14,19 @@ async def lifespan(app: FastAPI):
     # Startup: Auto-create PostgreSQL tables if they do not exist
     try:
         Base.metadata.create_all(bind=engine)
-        print("✅ Database tables created/verified successfully in PostgreSQL")
+        print("✅ Database tables verified/created in PostgreSQL")
     except Exception as e:
         print(f"⚠️ Database initialization warning: {e}")
     yield
-    # Shutdown logic if needed
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
-    description="Decoupled Multi-Agent AI Tutor API with Groq LLM, Hybrid RAG, and PostgreSQL persistence.",
+    description="Multi-Agent AI Tutor API with Groq LLM, Hybrid RAG, and PostgreSQL persistence.",
     lifespan=lifespan
 )
 
-# CORS configuration (allow requests from Streamlit, React, mobile apps, etc.)
+# CORS configuration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -39,15 +41,7 @@ app.include_router(quiz_router)
 app.include_router(progress_router)
 app.include_router(documents_router)
 
-@app.get("/", tags=["General"])
-def root():
-    return {
-        "name": settings.PROJECT_NAME,
-        "version": settings.VERSION,
-        "status": "online",
-        "docs_url": "/docs"
-    }
-
+# Health endpoint
 @app.get("/health", tags=["General"])
 def health_check():
     return {
@@ -55,6 +49,18 @@ def health_check():
         "database": "connected",
         "model": settings.GROQ_MODEL
     }
+
+# Serve Frontend App at root
+frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend"))
+if os.path.exists(frontend_dir):
+    app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
+
+    @app.get("/", tags=["Frontend"])
+    def serve_frontend():
+        index_file = os.path.join(frontend_dir, "index.html")
+        if os.path.exists(index_file):
+            return FileResponse(index_file)
+        return {"message": "Frontend index.html not found"}
 
 if __name__ == "__main__":
     import uvicorn

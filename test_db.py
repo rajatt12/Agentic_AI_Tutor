@@ -2,7 +2,12 @@
 Database Connection & Inspection Utility
 Run: python test_db.py
 """
-import os
+import sys
+import io
+
+# Ensure UTF-8 output on Windows terminal
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+
 from sqlalchemy import text
 from backend.database import engine, Base, SessionLocal
 from backend.models.models import Student, TopicPerformance, QuizAttempt, QuizQuestion
@@ -10,45 +15,43 @@ from backend.services.student_service import StudentService
 
 def test_database():
     print("=" * 60)
-    print("🔍 Testing Database Connection & PostgreSQL Tables")
+    print("Testing Database Connection & PostgreSQL Tables")
     print("=" * 60)
 
     try:
         with engine.connect() as conn:
             result = conn.execute(text("SELECT 1")).scalar()
-            print(f"✅ Connection successful! Query result: {result}")
-            print(f"📡 Database Engine URL: {engine.url}")
+            print(f"[SUCCESS] Connection successful! Result: {result}")
+            print(f"[INFO] Database Engine URL: {engine.url}")
     except Exception as e:
-        print(f"❌ Database connection failed: {e}")
+        print(f"[ERROR] Database connection failed: {e}")
         return
 
     # Create tables
-    print("\n📦 Verifying / Creating Tables...")
+    print("\nVerifying / Creating Tables in PostgreSQL...")
     Base.metadata.create_all(bind=engine)
-    print("✅ Tables verified:")
+    print("[SUCCESS] Tables verified:")
     for table_name in Base.metadata.tables.keys():
-        print(f"   • {table_name}")
+        print(f"   * {table_name}")
 
     # Test CRUD operations
     db = SessionLocal()
     try:
-        print("\n🧪 Testing Student CRUD in PostgreSQL...")
-        student = StudentService.get_or_create_student(db, "student_demo", "Demo Learner")
-        print(f"✅ Created/Loaded Student: ID={student.student_id}, Name={student.name}")
+        print("\nTesting Student CRUD in PostgreSQL...")
+        student = StudentService.get_or_create_student(db, "student_001", "Demo Learner")
+        print(f"[SUCCESS] Created/Loaded Student: ID={student.student_id}, Name={student.name}")
 
-        # Update test performance
-        perf = StudentService.update_topic_performance(db, "student_demo", "Algebra Basics", 85.0)
-        print(f"✅ Recorded Topic Performance: Topic={perf.topic}, Accuracy={perf.accuracy}%, Strength={perf.strength}")
+        perf = StudentService.update_topic_performance(db, "student_001", "Algebra Basics", 85.0)
+        print(f"[SUCCESS] Recorded Topic Performance: Topic={perf.topic}, Accuracy={perf.accuracy}%, Strength={perf.strength}")
 
-        # Fetch progress report
-        report = StudentService.get_progress_report(db, "student_demo")
-        print(f"✅ Progress Report Compiled: Total Quizzes={report['total_quizzes']}, Topics={report['topics_practiced']}")
+        report = StudentService.get_progress_report(db, "student_001")
+        print(f"[SUCCESS] Progress Report Compiled: Total Quizzes={report['total_quizzes']}, Topics={report['topics_practiced']}")
     except Exception as e:
-        print(f"❌ Error during CRUD test: {e}")
+        print(f"[ERROR] Error during CRUD test: {e}")
     finally:
         db.close()
 
-    print("\n🎉 Database test completed successfully!")
+    print("\n[DONE] Database test completed successfully!")
 
 if __name__ == "__main__":
     test_database()
