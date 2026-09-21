@@ -104,7 +104,7 @@ Reply with ONLY the exact classification name, nothing else."""
     
     def _handle_explanation(self, query, student_id):
         """Retrieve explanation and generate practice questions"""
-        retrieval_result = self.retriever.retrieve_content(query)
+        retrieval_result = self.retriever.retrieve_content(query, student_id=student_id)
         context_text = retrieval_result.get('retrieved_content', '')
         has_context = bool(context_text.strip() and not context_text.startswith("**Source 1:** \n"))
         

@@ -120,6 +120,9 @@ class ProgressResponse(BaseModel):
 class DocumentIngestRequest(BaseModel):
     title: str
     content: str
+    student_id: Optional[str] = "student_001"
+    is_shared: Optional[bool] = False
+    subject: Optional[str] = "General"
     source_type: str = "notes"
 
 class DocumentIngestResponse(BaseModel):

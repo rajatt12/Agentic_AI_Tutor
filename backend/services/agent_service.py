@@ -36,7 +36,7 @@ class AgentService:
         return self._quiz_generator
     
     def process_chat(self, db: Session, student_id: str, query: str, api_key: str = None, model: str = None) -> dict:
-        """Execute intent classification and concept RAG generation"""
+        """Execute intent classification and concept RAG generation scoped to student"""
         from agents.planner_agent import PlannerAgent
         
         key = api_key or settings.GROQ_API_KEY
@@ -66,7 +66,7 @@ class AgentService:
         api_key: str = None,
         model: str = None
     ) -> dict:
-        """Generate dynamic quiz with adaptive difficulty looked up from PostgreSQL"""
+        """Generate dynamic quiz with adaptive difficulty and dual-tier context lookup"""
         key = api_key or settings.GROQ_API_KEY
         selected_model = model or settings.GROQ_MODEL
         
@@ -79,7 +79,7 @@ class AgentService:
             else:
                 difficulty = "medium"
 
-        retrieved = self.retriever.retrieve_content(topic)
+        retrieved = self.retriever.retrieve_content(topic, student_id=student_id)
         context = retrieved.get("retrieved_content", "")
 
         questions = self.quiz_generator.generate_quiz(
@@ -95,14 +95,27 @@ class AgentService:
             "questions": questions
         }
 
-    def ingest_document(self, title: str, content: str) -> int:
-        """Chunk and index new study text into both ChromaDB and BM25"""
+    def ingest_document(self, student_id: str, title: str, content: str, is_shared: bool = False, subject: str = "General") -> int:
+        """Chunk and index new study text into both ChromaDB and BM25 tagged with student_id"""
         chunks = [c.strip() for c in content.split("\n\n") if len(c.strip()) > 30]
         if not chunks:
             chunks = [content]
 
-        metadatas = [{"title": title, "source": "user_upload"} for _ in chunks]
+        metadatas = [
+            {
+                "title": title,
+                "student_id": "global_curriculum" if is_shared else student_id,
+                "is_shared": is_shared,
+                "subject": subject,
+                "source": "curriculum_upload" if is_shared else "student_personal_upload"
+            } 
+            for _ in chunks
+        ]
         self.embedding_manager.add_documents(chunks, metadatas)
         return len(chunks)
+
+    def list_student_documents(self, student_id: str) -> dict:
+        """List personal notes for student along with curriculum chunks count"""
+        return self.embedding_manager.get_student_documents(student_id)
 
 agent_service = AgentService()

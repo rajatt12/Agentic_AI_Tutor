@@ -343,33 +343,89 @@
       </div>
 
       <!-- ================= TAB 4: STUDY NOTES ================= -->
-      <div id="tab-notes" class="fade-in" style="display:none; max-width:800px; margin:0 auto;">
-        <div class="glass-panel" style="padding:2.25rem;">
-          <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem;">
-            <div style="padding:0.5rem; border-radius:10px; background:rgba(6,182,212,0.15);">
-              <i data-lucide="upload-cloud" style="color:var(--accent-cyan);"></i>
+      <div id="tab-notes" class="fade-in" style="display:none; max-width:1050px; margin:0 auto;">
+        
+        <!-- Shared Curriculum Banner -->
+        <div class="glass-panel" style="padding:1.5rem 1.75rem; margin-bottom:1.5rem; background:linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(6,182,212,0.1) 100%); border-left:4px solid var(--accent-indigo);">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+            <div>
+              <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+                <i data-lucide="library" style="color:var(--accent-cyan); width:20px;"></i>
+                <h3 style="font-size:1.15rem;">Shared Curriculum Library (Active for All Students)</h3>
+              </div>
+              <p style="color:var(--text-secondary); font-size:0.88rem;">
+                Pre-seeded foundational formulas for <strong>Physics, Mathematics, and Chemistry</strong>.
+              </p>
             </div>
-            <h2 style="font-size:1.4rem;">Study Material & Notes</h2>
+            <div style="display:flex; gap:0.5rem;">
+              <span class="badge badge-strong">✓ Physics Core</span>
+              <span class="badge badge-strong">✓ Math Calculus & Prob</span>
+              <span class="badge badge-strong">✓ Chemistry Laws</span>
+            </div>
           </div>
-          <p style="color:var(--text-secondary); margin-bottom:1.75rem; font-size:0.92rem;">
-            Add your custom class notes, theorems, or formula sheets to enrich the AI tutor's reference knowledge.
-          </p>
+        </div>
 
-          <form onsubmit="handleDocumentIngest(event)" style="display:flex; flex-direction:column; gap:1.25rem;">
-            <div>
-              <label style="display:block; font-size:0.88rem; font-weight:600; margin-bottom:0.4rem; color:var(--text-secondary);">Document Title</label>
-              <input type="text" id="doc-title-input" class="input-field" placeholder="e.g. Physics Kinematics Formula Sheet" required />
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+          
+          <!-- Ingest Form -->
+          <div class="glass-panel" style="padding:2rem;">
+            <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem;">
+              <div style="padding:0.45rem; border-radius:8px; background:rgba(6,182,212,0.15);">
+                <i data-lucide="file-plus-2" style="color:var(--accent-cyan); width:18px;"></i>
+              </div>
+              <h3 style="font-size:1.2rem;">Add Personal Study Note</h3>
             </div>
-            <div>
-              <label style="display:block; font-size:0.88rem; font-weight:600; margin-bottom:0.4rem; color:var(--text-secondary);">Content / Notes</label>
-              <textarea id="doc-content-input" class="input-field" rows="8" placeholder="Paste formulas, definitions, or textbook notes here..." required></textarea>
-            </div>
-            <button type="submit" id="doc-submit-btn" class="btn-primary" style="padding:0.9rem;">
-              <i data-lucide="sparkles" style="width:18px;"></i> Add to Study Notes
-            </button>
-          </form>
+            <p style="color:var(--text-secondary); margin-bottom:1.25rem; font-size:0.86rem;">
+              Personal notes are private to <strong id="notes-student-label" style="color:var(--accent-cyan);">you</strong> and used to ground your chat answers.
+            </p>
 
-          <div id="doc-status-msg" style="display:none; margin-top:1.25rem; padding:1rem; border-radius:10px; font-size:0.9rem;"></div>
+            <form onsubmit="handleDocumentIngest(event)" style="display:flex; flex-direction:column; gap:1rem;">
+              <div>
+                <label style="display:block; font-size:0.84rem; font-weight:600; margin-bottom:0.3rem; color:var(--text-secondary);">Note Title</label>
+                <input type="text" id="doc-title-input" class="input-field" placeholder="e.g. My Rotational Motion Cheatsheet" required />
+              </div>
+              <div>
+                <label style="display:block; font-size:0.84rem; font-weight:600; margin-bottom:0.3rem; color:var(--text-secondary);">Subject</label>
+                <select id="doc-subject-select" class="input-field">
+                  <option value="Physics">Physics</option>
+                  <option value="Mathematics">Mathematics</option>
+                  <option value="Chemistry">Chemistry</option>
+                  <option value="General" selected>General Science</option>
+                </select>
+              </div>
+              <div>
+                <label style="display:block; font-size:0.84rem; font-weight:600; margin-bottom:0.3rem; color:var(--text-secondary);">Formulas & Notes</label>
+                <textarea id="doc-content-input" class="input-field" rows="6" placeholder="Type or paste theorems, formulas, or homework summaries..." required></textarea>
+              </div>
+              <button type="submit" id="doc-submit-btn" class="btn-primary" style="padding:0.85rem;">
+                <i data-lucide="sparkles" style="width:16px;"></i> Save to My Private Notes
+              </button>
+            </form>
+
+            <div id="doc-status-msg" style="display:none; margin-top:1rem; padding:0.75rem 1rem; border-radius:8px; font-size:0.85rem;"></div>
+          </div>
+
+          <!-- Student's Personal Notes List -->
+          <div class="glass-panel" style="padding:2rem; display:flex; flex-direction:column;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+              <div style="display:flex; align-items:center; gap:0.6rem;">
+                <div style="padding:0.45rem; border-radius:8px; background:rgba(99,102,241,0.15);">
+                  <i data-lucide="lock" style="color:var(--accent-indigo); width:18px;"></i>
+                </div>
+                <h3 style="font-size:1.2rem;">My Private Notebook</h3>
+              </div>
+              <button class="btn-secondary" style="font-size:0.78rem; padding:0.4rem 0.75rem;" onclick="loadStudentNotes()">
+                <i data-lucide="refresh-cw" style="width:13px;"></i> Refresh
+              </button>
+            </div>
+
+            <div id="student-notes-list" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:0.75rem; max-height:420px;">
+              <div style="text-align:center; padding:2rem; color:var(--text-muted);">
+                <p>Loading your personal notes...</p>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -472,6 +528,9 @@
       document.getElementById('user-name-display').innerText = currentStudent.full_name || currentStudent.username;
       document.getElementById('user-exam-display').innerText = currentStudent.target_exam || 'Competitive Exams';
       
+      const label = document.getElementById('notes-student-label');
+      if (label) label.innerText = currentStudent.full_name || currentStudent.username;
+
       const initials = (currentStudent.full_name || currentStudent.username || 'ST')
         .split(' ')
         .map(n => n[0])
@@ -498,6 +557,8 @@
 
       if (tabName === 'progress') {
         loadProgress();
+      } else if (tabName === 'notes') {
+        loadStudentNotes();
       }
       refreshIcons();
     }
@@ -544,6 +605,7 @@
         updateUserDisplay();
         closeAuthModal();
         loadProgress();
+        loadStudentNotes();
       } catch (err) {
         alert(err.message);
       } finally {
@@ -579,6 +641,7 @@
         updateUserDisplay();
         closeAuthModal();
         loadProgress();
+        loadStudentNotes();
       } catch (err) {
         alert(err.message);
       } finally {
@@ -937,40 +1000,83 @@
       }
     }
 
-    // ================= STUDY NOTES =================
+    // ================= STUDY NOTES (DUAL-TIER) =================
+    async function loadStudentNotes() {
+      const container = document.getElementById('student-notes-list');
+      if (!container) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/documents/${currentStudent.student_id}`);
+        const data = await res.json();
+        const personal = data.personal_notes || [];
+
+        if (personal.length === 0) {
+          container.innerHTML = `
+            <div style="text-align:center; padding:2.5rem 1rem; color:var(--text-muted);">
+              <i data-lucide="notebook" style="width:28px; height:28px; margin-bottom:0.6rem; opacity:0.5;"></i>
+              <p style="font-size:0.9rem;">No personal notes added yet for <strong>${currentStudent.full_name}</strong>.</p>
+              <p style="font-size:0.78rem; margin-top:0.35rem; color:var(--text-secondary);">Use the form to save formulas or notes specific to your study sessions.</p>
+            </div>
+          `;
+        } else {
+          container.innerHTML = personal.map(n => `
+            <div style="background:rgba(255,255,255,0.02); border:1px solid var(--glass-border); border-radius:10px; padding:0.9rem 1.1rem; display:flex; flex-direction:column; gap:0.3rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <strong style="font-size:0.92rem; color:#fff;">${n.title}</strong>
+                <span class="badge badge-medium">${n.subject}</span>
+              </div>
+              <p style="font-size:0.8rem; color:var(--text-secondary); line-height:1.4;">${n.preview}</p>
+            </div>
+          `).join('');
+        }
+        refreshIcons();
+      } catch (err) {
+        container.innerHTML = `<p style="color:var(--text-muted); text-align:center; font-size:0.85rem;">Could not load private notes.</p>`;
+      }
+    }
+
     async function handleDocumentIngest(e) {
       e?.preventDefault();
       const title = document.getElementById('doc-title-input').value.trim();
+      const subject = document.getElementById('doc-subject-select').value;
       const content = document.getElementById('doc-content-input').value.trim();
       const btn = document.getElementById('doc-submit-btn');
       const status = document.getElementById('doc-status-msg');
 
       btn.disabled = true;
-      btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> Saving Notes...';
+      btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> Saving to Notebook...';
       refreshIcons();
 
       try {
         const res = await fetch(`${API_BASE}/documents/ingest`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, content, source_type: 'notes' })
+          body: JSON.stringify({
+            student_id: currentStudent.student_id,
+            title: title,
+            subject: subject,
+            content: content,
+            is_shared: false,
+            source_type: 'notes'
+          })
         });
         const data = await res.json();
         status.style.display = 'block';
         status.style.background = 'rgba(16,185,129,0.15)';
         status.style.color = '#34d399';
         status.style.border = '1px solid rgba(16,185,129,0.3)';
-        status.innerText = `✅ Notes saved and indexed for your study sessions!`;
+        status.innerText = `✅ Note saved and indexed for ${currentStudent.full_name}!`;
         document.getElementById('doc-title-input').value = '';
         document.getElementById('doc-content-input').value = '';
+        loadStudentNotes();
       } catch (err) {
         status.style.display = 'block';
         status.style.background = 'rgba(244,63,94,0.15)';
         status.style.color = '#fb7185';
-        status.innerText = `Could not save notes at this time. Please try again.`;
+        status.innerText = `Could not save note at this time. Please try again.`;
       } finally {
         btn.disabled = false;
-        btn.innerHTML = '<i data-lucide="sparkles"></i> Add to Study Notes';
+        btn.innerHTML = '<i data-lucide="sparkles"></i> Save to My Private Notes';
         refreshIcons();
       }
     }
